@@ -49,7 +49,7 @@ def process_img():
     print(original_image_id[:10])
     print(Config.num_keypoints)
 
-    for i in range(len(train_image_id)):
+    for i in range(len(original_image_id)):
         if i > 1000:
             break
         ind = i
@@ -99,13 +99,20 @@ def process_img():
         pickle.dump(processed_keypoints, f)
 
 def download_coco():
+    print("Downloading annotation file...")
     wget.download(coco_annotation_url, data_dir)
     with ZipFile(os.path.join(data_dir, "annotations_trainval2017.zip")) as zf:
         zf.extractall(data_dir)
-    wget.download(coco_dataset_url, data_dir)
+    print("Done.")
 
+    print("Downloading training data.")
+
+    wget.download(coco_dataset_url, data_dir)
+    print("Extracting training data...")
     with ZipFile(os.path.join(data_dir, "train2017.zip")) as zf:
         zf.extractall(data_dir)
+
+    print("Done.")
 
 
 def read_annotation_json():
