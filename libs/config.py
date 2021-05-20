@@ -1,8 +1,8 @@
 class Config:
   image_shape = (224,224)
   bbx_multiplier = 1.2
-  num_keypoints = None
-  heatmap_shape = None
+  num_keypoints = 13
+  heatmap_shape = (56, 56) 
   sigma = 3
   heatmap_radius = 9 
   ignore_keypoints = ["left_eye", "right_eye", "left_ear", "right_ear"]
