@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from model import *
 import torch
-import tqdm
+from tqdm import tqdm
 
 def train():
     processed_img_id, processed_keypoints = load_processed_img_id()
