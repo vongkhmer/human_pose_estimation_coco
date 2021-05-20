@@ -112,7 +112,7 @@ def download_coco():
     print("Downloading annotation file...")
     wget.download(coco_annotation_url, data_dir)
 
-    print("Extracting annotations...")
+    print("\nExtracting annotations...")
     with ZipFile(os.path.join(data_dir, "annotations_trainval2017.zip")) as zf:
         zf.extractall(data_dir)
     print("\nDone.")
@@ -120,12 +120,12 @@ def download_coco():
     print("Downloading training data.")
     wget.download(coco_dataset_url, data_dir)
 
-    print("Extracting training data...")
+    print("\nExtracting training data...")
     with ZipFile(os.path.join(data_dir, "train2017.zip")) as zf:
         zf.extractall(data_dir)
     print("\nDone.")
     
-    download = True
+    downloaded = True
     with open(os.path.join(data_dir, "download_flag"), "wb") as f:
         pickle.dump(downloaded, f)
 
