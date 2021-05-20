@@ -88,7 +88,7 @@ def train():
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
     loss_hist = []
-    NUM_EPOCH = 50
+    NUM_EPOCH = 200 
     start_epoch = 31 
     end_epoch = start_epoch + NUM_EPOCH + 1
     for epoch in range(start_epoch, end_epoch):
