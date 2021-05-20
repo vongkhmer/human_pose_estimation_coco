@@ -18,7 +18,7 @@ coco_dataset_url = "http://images.cocodataset.org/zips/train2017.zip"
 coco_annotation_url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
 
 def load_processed_img_id():
-    reset()
+    # reset()
     with open(img_id_pickle, "rb") as f:
         processed_img_id = pickle.load(f)
 
@@ -37,8 +37,8 @@ def load_processed_img_id():
 def process_img():
     processed_img_id = []
     processed_keypoints = []
-
-    if True:
+    downloaded = pickle.load(os.path.join(data_dir, "download_flag"))
+    if not downloaded:
         print("Downloading coco dataset")
         download_coco()
 
@@ -118,6 +118,10 @@ def download_coco():
     with ZipFile(os.path.join(data_dir, "train2017.zip")) as zf:
         zf.extractall(data_dir)
     print("\nDone.")
+    
+    download = True
+    with open(os.path.join(data_dir, "download_flag"), "wb") as f:
+        pickle.dump(downloaded, f)
 
 
 def read_annotation_json():
@@ -153,9 +157,13 @@ def read_annotation_json():
 def reset():
     processed_img_id = []
     processed_keypoints = []
+    downloaded = False 
 
     with open(img_id_pickle, "wb") as f:
         pickle.dump(processed_img_id, f)
 
     with open(keypoints_pickle, "wb") as f:
         pickle.dump(processed_keypoints, f)
+    
+    with open(os.path.join(data_dir, "download_flag"), "wb") as f:
+        pickle.dump(downloaded, f)
