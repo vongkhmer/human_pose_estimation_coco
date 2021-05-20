@@ -11,6 +11,9 @@ resnet_preprocess = transforms.Compose([
 def train():
     processed_img_id, processed_keypoints = load_processed_img_id()
 
+    print(len(processed_keypoints))
+    print(processed_keypoints[0])
+
     human_pose_dataset = HumanPoseDataset(processed_img_id, 
                                       processed_keypoints, 
                                       Config.heatmap_radius, 
