@@ -118,7 +118,7 @@ def download_coco():
     print("\nExtracting annotations...")
     with ZipFile(os.path.join(data_dir, "annotations_trainval2017.zip")) as zf:
         zf.extractall(data_dir)
-    print("\nDone.")
+    print("Done.")
 
     print("Downloading training data.")
     wget.download(coco_dataset_url, data_dir)
@@ -126,7 +126,7 @@ def download_coco():
     print("\nExtracting training data...")
     with ZipFile(os.path.join(data_dir, "train2017.zip")) as zf:
         zf.extractall(data_dir)
-    print("\nDone.")
+    print("Done.")
     
     downloaded = True
     with open(os.path.join(data_dir, "download_flag"), "wb") as f:

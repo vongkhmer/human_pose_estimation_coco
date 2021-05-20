@@ -107,6 +107,45 @@ def train():
             optimizer.step()
         print(f"Epoch {epoch} loss {total_loss / total_batch}")
         loss_hist.append(total_loss / total_batch)
+
+    plt.plot(list(range(start_epoch, end_epoch)), loss_hist)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss")
+    plt.savefig("lost hist")
+
+    #evaluate
+    eval_data_loader = torch.utils.data.DataLoader(human_pose_dataset, batch_size =1,shuffle = True, num_workers =2)
+
+    #after 30 epochs
+    for X, Y, V in eval_data_loader:
+        outputs = human_pose_model(X.to(device))
+        outputs = outputs * V.to(device)
+        print(outputs.shape)
+        outputs = outputs.to('cpu')
+        print(V.shape)
+        X = X.squeeze()
+        Y = Y.squeeze()
+        outputs = outputs.squeeze()
+        print(X.shape)
+        print(Y.shape)
+        print(outputs.shape)
+        X = invTrans(X)
+        X = X.permute(1, 2, 0).numpy()
+        Y = Y.numpy()
+        outputs = outputs.detach().numpy()
+        expected = draw_heatmap(X, Y)
+        plt.imshow(expected)
+        plt.savefig("expected.png")
+
+        result = draw_heatmap(X, outputs, threshold=0.4)
+        plt.imshow(result)
+        plt.savefig("result.png")
+
+        break
+
+
+
         # if epoch % 10 == 0:
         #     torch.save(deconv.state_dict(), f"/content/drive/MyDrive/models/masked_deconv_model_e_{epoch }")
 
