@@ -27,7 +27,7 @@ def load_processed_img_id():
         processed_keypoints = pickle.load(f)
 
     if len(processed_img_id) == 0:
-        print("Download need")
+        print("Download is needed")
         processed_img_id, processed_keypoints = process_img() 
         print("done")
     else:

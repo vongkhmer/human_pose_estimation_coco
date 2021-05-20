@@ -11,7 +11,7 @@ def train():
     processed_img_id, processed_keypoints = load_processed_img_id()
 
     human_pose_model = HumanPose()
-    X = torch.rand(1, *Config.image_shape)
+    X = torch.rand(1, 3, *Config.image_shape)
     Y = human_pose_model(X)
     Config.heatmap_shape = list(Y.shape)[2:]
 
