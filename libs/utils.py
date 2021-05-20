@@ -32,6 +32,8 @@ def load_processed_img_id():
         print("done")
     else:
         print("finished loaded")
+    
+    Config.num_keypoints = len(processed_keypoints[0]) // 3
 
     return processed_img_id, processed_keypoints
 
@@ -49,12 +51,8 @@ def process_img():
         download_coco()
 
     original_image_id, original_keypoints, original_bbox, num_keypoints = read_annotation_json()
-  
-    Config.num_keypoints = len(original_keypoints[0]) // 3
 
     print(original_image_id[:10])
-    print(Config.num_keypoints)
-
     print("Start processing images according to configuration..")
 
     for i in range(len(original_image_id)):
@@ -65,6 +63,8 @@ def process_img():
         w, h = img.size
         keyp = original_keypoints[ind]
         num_key = num_keypoints[ind]
+
+        Config.num_keypoints = len(keyp) // 3
 
         bx, by, bw, bh = original_bbox[ind]
         bsz, cx, cy = max(bw, bh) * Config.bbx_multiplier, bx + bw//2, by + bh//2

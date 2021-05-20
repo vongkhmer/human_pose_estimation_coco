@@ -5,6 +5,18 @@ from torch.utils import data
 from torchvision import transforms, datasets
 import numpy as np
 
+
+resnet_preprocess = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+
+invTrans = transforms.Compose([ transforms.Normalize(mean = [ 0., 0., 0. ],
+                                                     std = [ 1/0.229, 1/0.224, 1/0.225 ]),
+                                transforms.Normalize(mean = [ -0.485, -0.456, -0.406 ],
+                                                     std = [ 1., 1., 1. ]),
+                               ])
+
 class HumanPoseDataset(torch.utils.data.Dataset):
     'Characterizes a dataset for PyTorch'
     def __init__(self, list_IDs, keypoints_labels, heatmap_radius, heatmap_shape, preprocess, num_keypoints, sigma):

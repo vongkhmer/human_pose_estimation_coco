@@ -3,23 +3,24 @@ from pose_data_loader import *
 from utils import *
 import matplotlib.pyplot as plt
 import numpy as np
+from model import *
+import torch
 
-resnet_preprocess = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
-
-invTrans = transforms.Compose([ transforms.Normalize(mean = [ 0., 0., 0. ],
-                                                     std = [ 1/0.229, 1/0.224, 1/0.225 ]),
-                                transforms.Normalize(mean = [ -0.485, -0.456, -0.406 ],
-                                                     std = [ 1., 1., 1. ]),
-                               ])
 
 def train():
+    human_pose_model = HumanPose()
+    X = torch.rand(1, *Config.image_shape)
+    Y = human_pose_model(X)
+    Config.heatmap_shape = list(Y.shape)[2:]
+
     processed_img_id, processed_keypoints = load_processed_img_id()
 
-    print(len(processed_keypoints))
-    print(processed_keypoints[0])
+    # print(len(processed_keypoints))
+    # print(processed_keypoints[0])
+
+    print("Config")
+    print(f"Num keypoints : {Config.num_keypoints}")
+    print(f"Heatmap shape : {Config.heatmap_shape}")
 
     human_pose_dataset = HumanPoseDataset(processed_img_id, 
                                       processed_keypoints, 
