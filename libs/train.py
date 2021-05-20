@@ -45,6 +45,7 @@ def train():
     X = invTrans(X)
     plt.imshow(X.permute(1,2,0))
     plt.savefig("test-img.png")
+    plt.clf()
 
     X = X.permute(1, 2, 0).numpy()
 
@@ -52,10 +53,12 @@ def train():
 
     plt.imshow(X)
     plt.savefig("test-key.png")
+    plt.clf()
 
     hmp = np.sum(Y, axis = 0)
     plt.imshow(hmp)
     plt.savefig("test-hmp.png")
+    plt.clf()
 
 
     X, Y, V = next(it)
@@ -66,6 +69,7 @@ def train():
     X = invTrans(X)
     plt.imshow(X.permute(1,2,0))
     plt.savefig("test-img2.png")
+    plt.clf()
 
     X = X.permute(1, 2, 0).numpy()
 
@@ -73,10 +77,12 @@ def train():
 
     plt.imshow(X)
     plt.savefig("test-key2.png")
+    plt.clf()
 
     hmp = np.sum(Y, axis = 0)
     plt.imshow(hmp)
     plt.savefig("test-hmp2.png")
+    plt.clf()
 
     humanpose_data_loader = torch.utils.data.DataLoader(human_pose_dataset, 
                                                         batch_size =64,
@@ -88,7 +94,7 @@ def train():
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
     loss_hist = []
-    NUM_EPOCH = 200 
+    NUM_EPOCH = 400 
     start_epoch = 31 
     end_epoch = start_epoch + NUM_EPOCH + 1
     for epoch in range(start_epoch, end_epoch):
@@ -113,6 +119,7 @@ def train():
     plt.ylabel("Loss")
     plt.title("Training Loss")
     plt.savefig("lost hist")
+    plt.clf()
 
     #evaluate
     eval_data_loader = torch.utils.data.DataLoader(human_pose_dataset, batch_size =1,shuffle = True, num_workers =2)
@@ -137,10 +144,12 @@ def train():
         expected = draw_heatmap(X, Y)
         plt.imshow(expected)
         plt.savefig("expected.png")
+        plt.clf()
 
         result = draw_heatmap(X, outputs, threshold=0.4)
         plt.imshow(result)
         plt.savefig("result.png")
+        plt.clf()
 
         break
 
