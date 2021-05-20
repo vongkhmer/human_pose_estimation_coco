@@ -6,6 +6,7 @@ import json
 from config import * 
 from PIL import Image, ImageDraw
 import numpy as np
+from scipy import ndimage
 
 cur_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(cur_dir)
