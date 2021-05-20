@@ -37,7 +37,7 @@ def load_processed_img_id():
 def process_img():
     processed_img_id = []
     processed_keypoints = []
-    downloaded = pickle.load(os.path.join(data_dir, "download_flag"))
+    # downloaded = pickle.load(os.path.join(data_dir, "download_flag"))
     # if not downloaded:
     #     print("Downloading coco dataset")
     #     download_coco()
