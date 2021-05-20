@@ -38,7 +38,7 @@ def process_img():
     processed_img_id = []
     processed_keypoints = []
     with open(os.path.join(data_dir, "download_flag"), "rb") as f:
-        dowloaded = pickle.load(f)
+        downloaded = pickle.load(f)
 
     if not downloaded:
         print("Downloading coco dataset")
