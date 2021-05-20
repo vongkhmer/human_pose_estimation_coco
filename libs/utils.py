@@ -27,7 +27,7 @@ def load_processed_img_id():
 
     if len(processed_img_id) == 0:
         print("Download need")
-        process_img() 
+        processed_img_id, processed_keypoints = process_img() 
         print("done")
     else:
         print("finished loaded")
@@ -37,10 +37,12 @@ def load_processed_img_id():
 def process_img():
     processed_img_id = []
     processed_keypoints = []
-    # downloaded = pickle.load(os.path.join(data_dir, "download_flag"))
-    # if not downloaded:
-    #     print("Downloading coco dataset")
-    #     download_coco()
+    with open(os.path.join(data_dir, "download_flag"), "wb") as f:
+        dowloaded = pickle.load(f)
+
+    if not downloaded:
+        print("Downloading coco dataset")
+        #download_coco()
 
     original_image_id, original_keypoints, original_bbox, num_keypoints = read_annotation_json()
   
@@ -102,6 +104,8 @@ def process_img():
     with open(keypoints_pickle, "wb") as f:
         pickle.dump(processed_keypoints, f)
     print("total processed : ", len(processed_keypoints))
+
+    return processed_img_id, processed_keypoints
 
 def download_coco():
     print("Downloading annotation file...")
