@@ -8,6 +8,12 @@ import torch
 from tqdm import tqdm
 
 def train():
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+    torch.backends.cudnn.benchmark = True
+    print("using GPU :", use_cuda)
+
     processed_img_id, processed_keypoints = load_processed_img_id()
 
     human_pose_model = HumanPose()
@@ -78,6 +84,7 @@ def train():
                                                         num_workers =2, 
                                                         pin_memory = True)
 
+    human_pose_model.to(device)
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
     loss_hist = []
@@ -88,7 +95,7 @@ def train():
         total_loss = 0
         total_batch = 0
         for local_batch, local_labels, local_masks in tqdm(humanpose_data_loader):
-            # local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
+            local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
 
             optimizer.zero_grad()
             outputs = human_pose_model(local_batch)
