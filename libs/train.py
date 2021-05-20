@@ -72,6 +72,37 @@ def train():
     plt.imshow(hmp)
     plt.savefig("test-hmp2.png")
 
+    humanpose_data_loader = torch.utils.data.DataLoader(human_pose_dataset, 
+                                                        batch_size =64,
+                                                        shuffle = True, 
+                                                        num_workers =2, 
+                                                        pin_memory = True)
+
+    loss_function = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
+    loss_hist = []
+    NUM_EPOCH = 50
+    start_epoch = 31 
+    end_epoch = start_epoch + NUM_EPOCH + 1
+    for epoch in range(start_epoch, end_epoch):
+        total_loss = 0
+        total_batch = 0
+        for local_batch, local_labels, local_masks in tqdm(humanpose_data_loader):
+            # local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
+
+            optimizer.zero_grad()
+            outputs = human_pose_model(local_batch)
+            outputs = outputs * local_masks
+            loss = loss_function(outputs, local_labels)
+            total_batch += 1
+            total_loss += float(loss)
+            loss.backward()
+            optimizer.step()
+        print(f"Epoch {epoch} loss {total_loss / total_batch}")
+        loss_hist.append(total_loss / total_batch)
+        # if epoch % 10 == 0:
+        #     torch.save(deconv.state_dict(), f"/content/drive/MyDrive/models/masked_deconv_model_e_{epoch }")
+
 
 
 if __name__ == "__main__":
