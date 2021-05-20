@@ -5,6 +5,7 @@ from zipfile import ZipFile
 import json
 from config import * 
 from PIL import Image, ImageDraw
+import numpy as np
 
 cur_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(cur_dir)
@@ -172,3 +173,68 @@ def reset():
     
     with open(os.path.join(data_dir, "download_flag"), "wb") as f:
         pickle.dump(downloaded, f)
+def draw_bbox(im, x, y, w, h):
+    im = im.copy()
+    draw = ImageDraw.Draw(im)
+    draw.rectangle([x, y, x+w, y +h])
+    return im
+
+def draw_keypoints(im, keypoints, radius=2):
+    im = im.copy()
+    draw = ImageDraw.Draw(im)
+    sz = len(keypoints) // 3
+    points = []
+    for i in range(sz):
+        x, y, v = keypoints[3 * i : 3 *(i+1)]
+        if v < 0.5:
+            continue
+        draw.ellipse((x-radius, y-radius, x+radius, y+radius), fill=(255, 0, 0), outline=(255, 0, 0))
+    return im
+
+def draw_normalized_keypoints(im, keypoints, radius = 2):
+    im = im.copy()
+    if not isinstance(im, Image.Image):
+        im = im / np.max(im) * 255
+        im = Image.fromarray(im.astype('uint8'))
+    w, h = im.size
+    draw = ImageDraw.Draw(im)
+    sz = len(keypoints) // 3
+    for i in range(sz):
+        x, y, v = keypoints[3 * i : 3 *(i+1)]
+        x *= w 
+        y *= h
+        if v  < 0.5:
+            continue
+        draw.ellipse((x-radius, y-radius, x+radius, y+radius), fill=(255, 0, 0), outline=(255, 0, 0))
+    return im
+
+def heatmap_to_keypoints(heatmap, threshold = 0.8):
+    keyp = []
+    _, hw, hh = heatmap.shape
+    for i in range(Config.num_keypoints):
+        hmp = heatmap[i,:,:]
+        if np.max(hmp) < threshold * 255:
+            keyp.extend([0,0, 0])
+        else:
+            hmp = hmp / np.max(hmp) * 255
+            hmp = np.where(hmp > 0.9 * 255, hmp, 0)
+            cy, cx = ndimage.center_of_mass(hmp)
+            keyp.extend([cx / hw, cy /hh, 2])
+    return keyp
+
+def draw_heatmap(im, heatmap, threshold = 0.8):
+    # im = im.resize(Config.heatmap_shape)
+    im = np.array(im)
+    norm_keyp = heatmap_to_keypoints(heatmap, threshold)
+    # for j in range(Config.num_keypoints):
+    #   hmp = heatmap[:,:,j]
+    #   hmp = np.where(hmp > 100, hmp, 0)
+    #   mx = max(255, np.max(hmp))
+    #   mask = hmp / mx * 255
+    #   mask = Image.fromarray(mask.astype('uint8'))
+    #   mask = mask.resize(im.shape[:-1])
+    #   mask = np.array(mask)
+    #   im[:,:,0] = np.where(mask[:,:,0] > 100, mask[:,:,0], im[:,:,0])
+    #   im[:,:,1] = np.where(mask[:,:,0] > 100, 0, im[:,:,1])
+    #   im[:,:,2] = np.where(mask[:,:,0] > 100, 0, im[:,:,2])
+    return draw_normalized_keypoints(im, norm_keyp) 
