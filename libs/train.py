@@ -82,6 +82,9 @@ def train():
         plt.imshow(X)
         plt.savefig(f"val-{test}.png")
         plt.clf()
+    
+    train_data_loader = torch.utils.data.DataLoader(train_dataset, batch_size =64,shuffle = True, num_workers =2, pin_memory = True)
+    val_data_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, num_workers=2, pin_memory=True)
 
     human_pose_model.to(device)
 
