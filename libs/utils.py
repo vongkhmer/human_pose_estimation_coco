@@ -1,5 +1,7 @@
 import os
 import pickle
+from posixpath import join
+from torchvision import models
 import wget
 from zipfile import ZipFile
 import json
@@ -16,6 +18,7 @@ keypoints_pickle = os.path.join(data_dir, "processed_keypoints")
 img_dir = os.path.join(data_dir, "train2017")
 processed_dir = os.path.join(data_dir, "processed_img")
 annotaion_dir = os.path.join(data_dir, "annotations")
+models_dir = os.path.join(parent_dir, "models")
 coco_dataset_url = "http://images.cocodataset.org/zips/train2017.zip"
 coco_annotation_url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
 coco_val_url = "http://images.cocodataset.org/zips/val2017.zip"

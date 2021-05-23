@@ -1,3 +1,4 @@
+from torchvision import models
 from config import Config
 from pose_data_loader import *
 from utils import *
@@ -88,6 +89,68 @@ def train():
     optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
 
     print("Training first 10 epochs with resnet weight frozen...")
+
+    loss_hist = {"train":[], "val" : []}
+    NUM_EPOCH = 100
+    start_epoch = 0
+    end_epoch = start_epoch + NUM_EPOCH + 1
+    best_val_loss = 1e5
+
+    for epoch in range(start_epoch, end_epoch):
+        total_loss = 0
+        total_batch = 0
+        if epoch == 10:
+            print("Unfreeze layer 2 last layers...")
+            human_pose_model.unfreeze(6)
+            optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
+
+        if epoch == 60:
+            print("Unfreeze another layer...")
+            human_pose_model.unfreeze(5)
+            optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=5e-6)
+
+        human_pose_model.train()
+        print(f"Epoch {epoch} : training...")
+        for local_batch, local_labels, local_masks in tqdm(train_data_loader):
+            local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
+
+            optimizer.zero_grad()
+            outputs = human_pose_model(local_batch)
+            outputs = outputs * local_masks
+            loss = loss_function(outputs, local_labels)
+            total_batch += 1
+            total_loss += float(loss)
+            loss.backward()
+            optimizer.step()
+        train_loss = total_loss / total_batch
+        print(f"Training loss {train_loss}")
+        loss_hist["train"].append(train_loss)
+
+        print(f"Eval on validation set...")
+
+        human_pose_model.eval()
+        total_loss = 0
+        total_batch = 0
+        for local_batch, local_labels, local_masks in tqdm(val_data_loader):
+            local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
+
+            outputs = human_pose_model(local_batch)
+            outputs = outputs * local_masks
+            loss = loss_function(outputs, local_labels)
+            total_batch += 1
+            total_loss += float(loss)
+
+        val_loss = total_loss / total_batch
+        print(f"Val loss {val_loss}")
+        loss_hist["val"].append(val_loss)
+
+        if epoch % 10 == 0:
+            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, f"pose_model_with_val_e_{epoch }"))
+
+        if val_loss < best_val_loss:
+            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, "pose_model_with_val_best_val_loss"))
+            best_val_loss = val_loss
+        print(f"Best val loss {best_val_loss}")
 
 
 if __name__ == "__main__":
