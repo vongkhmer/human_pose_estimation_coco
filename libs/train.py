@@ -53,101 +53,34 @@ def train():
                                       Config.num_keypoints, 
                                       Config.sigma)
     it = iter(train_dataset)
-    X, Y, V = next(it)
-    print(X.shape)
-    print(Y.shape)
-    print(V.shape)
+    NUM_TEST = 10 
+    for test in range(NUM_TEST):
 
-    X = invTrans(X)
-    plt.imshow(X.permute(1,2,0))
-    plt.savefig("test-img.png")
-    plt.clf()
-
-    X = X.permute(1, 2, 0).numpy()
-
-    X = draw_heatmap(X, Y)
-
-    plt.imshow(X)
-    plt.savefig("test-key.png")
-    plt.clf()
-
-    hmp = np.sum(Y, axis = 0)
-    plt.imshow(hmp)
-    plt.savefig("test-hmp.png")
-    plt.clf()
-
-
-    X, Y, V = next(it)
-    print(X.shape)
-    print(Y.shape)
-    print(V.shape)
-
-    X = invTrans(X)
-    plt.imshow(X.permute(1,2,0))
-    plt.savefig("test-img2.png")
-    plt.clf()
-
-    X = X.permute(1, 2, 0).numpy()
-
-    X = draw_heatmap(X, Y)
-
-    plt.imshow(X)
-    plt.savefig("test-key2.png")
-    plt.clf()
-
-    hmp = np.sum(Y, axis = 0)
-    plt.imshow(hmp)
-    plt.savefig("test-hmp2.png")
-    plt.clf()
-
+        X, Y, V = next(it)
+        print(X.shape)
+        print(Y.shape)
+        print(V.shape)
+        X = invTrans(X)
+        X = X.permute(1, 2, 0).numpy()
+        X = draw_heatmap(X, Y)
+        plt.imshow(X)
+        plt.savefig(f"train-{test}.png")
+        plt.clf()
 
     it = iter(val_dataset)
-    X, Y, V = next(it)
-    print(X.shape)
-    print(Y.shape)
-    print(V.shape)
 
-    X = invTrans(X)
-    plt.imshow(X.permute(1,2,0))
-    plt.savefig("val-img.png")
-    plt.clf()
+    for test in range(NUM_TEST):
 
-    X = X.permute(1, 2, 0).numpy()
-
-    X = draw_heatmap(X, Y)
-
-    plt.imshow(X)
-    plt.savefig("val-key.png")
-    plt.clf()
-
-    hmp = np.sum(Y, axis = 0)
-    plt.imshow(hmp)
-    plt.savefig("val-hmp.png")
-    plt.clf()
-
-
-    X, Y, V = next(it)
-    print(X.shape)
-    print(Y.shape)
-    print(V.shape)
-
-    X = invTrans(X)
-    plt.imshow(X.permute(1,2,0))
-    plt.savefig("val-img2.png")
-    plt.clf()
-
-    X = X.permute(1, 2, 0).numpy()
-
-    X = draw_heatmap(X, Y)
-
-    plt.imshow(X)
-    plt.savefig("val-key2.png")
-    plt.clf()
-
-    hmp = np.sum(Y, axis = 0)
-    plt.imshow(hmp)
-    plt.savefig("val-hmp2.png")
-    plt.clf()
+        X, Y, V = next(it)
+        print(X.shape)
+        print(Y.shape)
+        print(V.shape)
+        X = invTrans(X)
+        X = X.permute(1, 2, 0).numpy()
+        X = draw_heatmap(X, Y)
+        plt.imshow(X)
+        plt.savefig(f"val-{test}.png")
+        plt.clf()
 
     human_pose_model.to(device)
 
