@@ -33,7 +33,7 @@ def load_processed_img_id():
         print("done")
     else:
         print("finished loaded")
-    Config.num_keypoints = len(processed_keypoints["train"][0])
+    Config.num_keypoints = len(processed_keypoints["train"][0]) // 3
 
     return processed_img_id, processed_keypoints
 
