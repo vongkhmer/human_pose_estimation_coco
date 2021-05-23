@@ -1,3 +1,4 @@
+from scipy.ndimage.measurements import label
 from torchvision import models
 from config import Config
 from pose_data_loader import *
@@ -94,7 +95,7 @@ def train():
     print("Training first 10 epochs with resnet weight frozen...")
 
     loss_hist = {"train":[], "val" : []}
-    NUM_EPOCH = 100
+    NUM_EPOCH = 5 
     start_epoch = 0
     end_epoch = start_epoch + NUM_EPOCH + 1
     best_val_loss = 1e5
@@ -154,7 +155,15 @@ def train():
             torch.save(human_pose_model.state_dict(), os.path.join(models_dir, "pose_model_with_val_best_val_loss"))
             best_val_loss = val_loss
         print(f"Best val loss {best_val_loss}")
-
+    
+    plt.plot(loss_hist["train"])
+    plt.plot(loss_hist["val"])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig("loss-hist.png")
+    plt.clf()
 
 if __name__ == "__main__":
     # reset()
