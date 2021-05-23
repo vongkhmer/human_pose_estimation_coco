@@ -34,7 +34,6 @@ def load_processed_img_id():
     else:
         print("finished loaded")
     
-    Config.num_keypoints = len(processed_keypoints["train"][0]) // 3
 
     return processed_img_id, processed_keypoints
 
@@ -164,17 +163,17 @@ def read_annotation_json():
             # print(bbox)
             num = 0
 
-        keyp = remove_ignored_keypoints(keyp) 
+            keyp = remove_ignored_keypoints(keyp) 
 
-        for i in range(len(keyp) // 3):
-            _, _, v = keyp[ 3 * i: 3 * i + 3]
-            if v > 0.5:
-                num += 1
+            for i in range(len(keyp) // 3):
+                _, _, v = keyp[ 3 * i: 3 * i + 3]
+                if v > 0.5:
+                    num += 1
 
-        img_id_data[data_type].append(image_id)
-        keypoints_data[data_type].append(keyp)
-        bbox_info_data[data_type].append(bbox)
-        num_keypoints_data[data_type].append(num)
+            img_id_data[data_type].append(image_id)
+            keypoints_data[data_type].append(keyp)
+            bbox_info_data[data_type].append(bbox)
+            num_keypoints_data[data_type].append(num)
 
         Config.num_keypoints = len(keypoints_data["train"][0]) // 3
     return img_id_data, keypoints_data, bbox_info_data, num_keypoints_data
