@@ -141,7 +141,7 @@ def train():
     X = draw_heatmap(X, Y)
 
     plt.imshow(X)
-    plt.savefig("test-key2.png")
+    plt.savefig("val-key2.png")
     plt.clf()
 
     hmp = np.sum(Y, axis = 0)
