@@ -1,3 +1,7 @@
+
+import torchvision.models as models
+import torch.nn as nn
+
 class Deconv(nn.Module):
     def __init__(self):
         super().__init__()
