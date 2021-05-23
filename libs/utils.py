@@ -59,25 +59,17 @@ def process_img():
                         
     for data_type in ["train", "val"]:
         for ind in range(len(img_id_data[data_type])):
-            # if i > 1000:
-            #   break
             img = Image.open(img_id_data[data_type][ind])
             w, h = img.size
             keyp = keypoints_data[data_type][ind]
-            # print(len(keyp))
-            # print(keyp)
             num_key = num_keypoints_data[data_type][ind]
             bx, by, bw, bh = bbox_info_data[data_type][ind]
-            # print(bx, by, bw, by)
             bsz, cx, cy = max(bw, bh) * Config.bbx_multiplier, bx + bw//2, by + bh//2
 
             if bsz < 224 :
                 continue
             if num_key < 4:
                 continue
-
-            # draw_keypoints(img, keyp)
-            # display(img)
 
             lx, rx = cx - bsz // 2, cx + bsz//2
             ly, ry = cy - bsz //2 , cy + bsz //2
@@ -93,10 +85,6 @@ def process_img():
                     x -= cx - bsz // 2
                     y -= cy - bsz// 2
                     points.extend((x,y, v))
-            # print(points)
-
-            # draw_keypoints(roi, points)
-            # display(roi)
             roi = roi.resize(Config.image_shape)
             normalized_keypoint = []
             for i in range(Config.num_keypoints):
@@ -112,6 +100,7 @@ def process_img():
             processed_img_id[data_type].append(new_path)
 
     print(f"processed img data for training {len(processed_img_id['train'])}, for val {len(processed_img_id['val'])}")
+
     #save processed id list 
     with open(img_id_pickle, "wb") as f:
         pickle.dump(processed_img_id, f)
@@ -250,18 +239,6 @@ def heatmap_to_keypoints(heatmap, threshold = 0.8):
     return keyp
 
 def draw_heatmap(im, heatmap, threshold = 0.8):
-    # im = im.resize(Config.heatmap_shape)
     im = np.array(im)
     norm_keyp = heatmap_to_keypoints(heatmap, threshold)
-    # for j in range(Config.num_keypoints):
-    #   hmp = heatmap[:,:,j]
-    #   hmp = np.where(hmp > 100, hmp, 0)
-    #   mx = max(255, np.max(hmp))
-    #   mask = hmp / mx * 255
-    #   mask = Image.fromarray(mask.astype('uint8'))
-    #   mask = mask.resize(im.shape[:-1])
-    #   mask = np.array(mask)
-    #   im[:,:,0] = np.where(mask[:,:,0] > 100, mask[:,:,0], im[:,:,0])
-    #   im[:,:,1] = np.where(mask[:,:,0] > 100, 0, im[:,:,1])
-    #   im[:,:,2] = np.where(mask[:,:,0] > 100, 0, im[:,:,2])
     return draw_normalized_keypoints(im, norm_keyp) 

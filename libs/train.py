@@ -149,6 +149,13 @@ def train():
     plt.savefig("val-hmp2.png")
     plt.clf()
 
+    human_pose_model.to(device)
+
+    loss_function = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
+
+    print("Training first 10 epochs with resnet weight frozen...")
+
 
 if __name__ == "__main__":
     # reset()

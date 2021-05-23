@@ -1,6 +1,7 @@
 
 import torchvision.models as models
 import torch.nn as nn
+from config import Config 
 
 class Deconv(nn.Module):
     def __init__(self):
