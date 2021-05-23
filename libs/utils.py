@@ -195,7 +195,7 @@ def draw_bbox(im, x, y, w, h):
     draw.rectangle([x, y, x+w, y +h])
     return im
 
-def draw_keypoints(im, keypoints, radius=2):
+def draw_keypoints(im, keypoints, radius=4):
     im = im.copy()
     draw = ImageDraw.Draw(im)
     sz = len(keypoints) // 3
@@ -205,9 +205,16 @@ def draw_keypoints(im, keypoints, radius=2):
         if v < 0.5:
             continue
         draw.ellipse((x-radius, y-radius, x+radius, y+radius), fill=(255, 0, 0), outline=(255, 0, 0))
+
+    for i,j in Config.connected_line:
+        x1, y1, v1 = keypoints[3 * i : 3 * i + 3]
+        x2, y2, v2 = keypoints[3 * j : 3 * j + 3]
+        if v1 > 0.5 and v2 > 0.5:
+            draw.line((x1, y1, x2, y2), fill="green", width=radius//2)
+
     return im
 
-def draw_normalized_keypoints(im, keypoints, radius = 2):
+def draw_normalized_keypoints(im, keypoints, radius = 4):
     im = im.copy()
     if not isinstance(im, Image.Image):
         im = im / np.max(im) * 255
@@ -222,6 +229,14 @@ def draw_normalized_keypoints(im, keypoints, radius = 2):
         if v  < 0.5:
             continue
         draw.ellipse((x-radius, y-radius, x+radius, y+radius), fill=(255, 0, 0), outline=(255, 0, 0))
+
+    for i,j in Config.connected_line:
+        x1, y1, v1 = keypoints[3 * i : 3 * i + 3]
+        x2, y2, v2 = keypoints[3 * j : 3 * j + 3]
+        x1, x2 = x1 * w, x2 * w
+        y1, y2 = y1 * h, y2 * h
+        if v1 > 0.5 and v2 > 0.5:
+            draw.line((x1, y1, x2, y2), fill="green", width=radius//2)
     return im
 
 def heatmap_to_keypoints(heatmap, threshold = 0.8):
