@@ -106,7 +106,7 @@ def process_img():
                 y /= bsz
                 normalized_keypoint.extend((x,y, v))
 
-            new_path =  f"./processed_img/{data_type}_" + '%012d.jpg' % (ind)
+            new_path =  os.path.join(processed_dir, f"{data_type}_" + '%012d.jpg' % (ind))
             print(new_path)
             roi.save(new_path)
             processed_keypoints[data_type].append(normalized_keypoint)
@@ -133,7 +133,7 @@ def download_coco():
     print("Done.")
 
     print("Downloading validation data..")
-    wget.download(coco_val_url)
+    wget.download(coco_val_url, data_dir)
 
     print("\nExtracting validation data...")
     with ZipFile(os.path.join(data_dir, "val2017.zip")) as zf:
@@ -152,13 +152,13 @@ def read_annotation_json():
     num_keypoints_data = {"train" : [], "val" : []}
 
     for data_type in ["train", "val"]:
-        json_file = f"annotations/person_keypoints_{data_type}2017.json"
+        json_file = os.path.join(annotaion_dir, f"person_keypoints_{data_type}2017.json")
         with open(json_file) as jsf:
             annotations = json.load(jsf)
         annotations = annotations["annotations"]
         for a in annotations:
             image_id, keyp, bbox, num = a["image_id"], a["keypoints"], a["bbox"], a["num_keypoints"]
-            image_id = f"./{data_type}2017/" + '%012d.jpg' % (image_id)
+            image_id = os.path.join(data_dir, os.path.join(f"{data_type}2017", '%012d.jpg' % (image_id)))
             # print(image_id)
             # print(keyp)
             # print(bbox)
