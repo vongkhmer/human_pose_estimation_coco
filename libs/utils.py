@@ -1,4 +1,3 @@
-from libs.config import Config
 import os
 import pickle
 import wget
