@@ -1,7 +1,3 @@
-import torch.nn as nn
-import torchvision.models as models
-from config import Config
-
 class Deconv(nn.Module):
     def __init__(self):
         super().__init__()
@@ -52,3 +48,11 @@ class HumanPose(nn.Module):
     features = self.bottleneck(x)
     heatmap = self.deconv(features)
     return heatmap
+
+  def unfreeze(self, start_from=1000):
+    layer_num = 0
+    for child in self.bottleneck.children():
+      layer_num += 1
+      if layer_num >  start_from:
+        for param in child.parameters():
+          param.requires_grad = True

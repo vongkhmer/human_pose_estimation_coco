@@ -29,14 +29,30 @@ def train():
     print(f"Num keypoints : {Config.num_keypoints}")
     print(f"Heatmap shape : {Config.heatmap_shape}")
 
-    human_pose_dataset = HumanPoseDataset(processed_img_id, 
-                                      processed_keypoints, 
+    random_flip = RandomFlip(Config.sym_pairs)
+    random_translate = RandomTranslate()
+    random_rotate = RandomRotate()
+    composed = transforms.Compose([random_flip, random_translate, random_rotate])
+
+    Config.sigma = 2 
+    Config.heatmap_radius = 3 * Config.sigma
+
+    train_dataset = HumanPoseDataset(processed_img_id["train"], 
+                                        processed_keypoints["train"], 
+                                        Config.heatmap_radius, 
+                                        Config.heatmap_shape, 
+                                        resnet_preprocess, 
+                                        Config.num_keypoints, 
+                                        Config.sigma, composed)
+
+    val_dataset = HumanPoseDataset(processed_img_id["val"], 
+                                      processed_keypoints["val"], 
                                       Config.heatmap_radius, 
                                       Config.heatmap_shape, 
                                       resnet_preprocess, 
                                       Config.num_keypoints, 
                                       Config.sigma)
-    it = iter(human_pose_dataset)
+    it = iter(train_dataset)
     X, Y, V = next(it)
     print(X.shape)
     print(Y.shape)
@@ -84,80 +100,54 @@ def train():
     plt.savefig("test-hmp2.png")
     plt.clf()
 
-    humanpose_data_loader = torch.utils.data.DataLoader(human_pose_dataset, 
-                                                        batch_size =64,
-                                                        shuffle = True, 
-                                                        num_workers =2, 
-                                                        pin_memory = True)
 
-    human_pose_model.to(device)
-    loss_function = torch.nn.MSELoss()
-    optimizer = torch.optim.Adam(filter(lambda p : p.requires_grad, human_pose_model.parameters()), lr=1e-4)
-    loss_hist = []
-    NUM_EPOCH = 400 
-    start_epoch = 31 
-    end_epoch = start_epoch + NUM_EPOCH + 1
-    for epoch in range(start_epoch, end_epoch):
-        total_loss = 0
-        total_batch = 0
-        for local_batch, local_labels, local_masks in tqdm(humanpose_data_loader):
-            local_batch, local_labels, local_masks = local_batch.to(device), local_labels.to(device), local_masks.to(device)
+    it = iter(val_dataset)
+    X, Y, V = next(it)
+    print(X.shape)
+    print(Y.shape)
+    print(V.shape)
 
-            optimizer.zero_grad()
-            outputs = human_pose_model(local_batch)
-            outputs = outputs * local_masks
-            loss = loss_function(outputs, local_labels)
-            total_batch += 1
-            total_loss += float(loss)
-            loss.backward()
-            optimizer.step()
-        print(f"Epoch {epoch} loss {total_loss / total_batch}")
-        loss_hist.append(total_loss / total_batch)
-
-    plt.plot(list(range(start_epoch, end_epoch)), loss_hist)
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.title("Training Loss")
-    plt.savefig("lost hist")
+    X = invTrans(X)
+    plt.imshow(X.permute(1,2,0))
+    plt.savefig("val-img.png")
     plt.clf()
 
-    #evaluate
-    eval_data_loader = torch.utils.data.DataLoader(human_pose_dataset, batch_size =1,shuffle = True, num_workers =2)
+    X = X.permute(1, 2, 0).numpy()
 
-    #after 30 epochs
-    for X, Y, V in eval_data_loader:
-        outputs = human_pose_model(X.to(device))
-        outputs = outputs * V.to(device)
-        print(outputs.shape)
-        outputs = outputs.to('cpu')
-        print(V.shape)
-        X = X.squeeze()
-        Y = Y.squeeze()
-        outputs = outputs.squeeze()
-        print(X.shape)
-        print(Y.shape)
-        print(outputs.shape)
-        X = invTrans(X)
-        X = X.permute(1, 2, 0).numpy()
-        Y = Y.numpy()
-        outputs = outputs.detach().numpy()
-        expected = draw_heatmap(X, Y)
-        plt.imshow(expected)
-        plt.savefig("expected.png")
-        plt.clf()
+    X = draw_heatmap(X, Y)
 
-        result = draw_heatmap(X, outputs, threshold=0.4)
-        plt.imshow(result)
-        plt.savefig("result.png")
-        plt.clf()
+    plt.imshow(X)
+    plt.savefig("val-key.png")
+    plt.clf()
 
-        break
+    hmp = np.sum(Y, axis = 0)
+    plt.imshow(hmp)
+    plt.savefig("val-hmp.png")
+    plt.clf()
 
 
+    X, Y, V = next(it)
+    print(X.shape)
+    print(Y.shape)
+    print(V.shape)
 
-        # if epoch % 10 == 0:
-        #     torch.save(deconv.state_dict(), f"/content/drive/MyDrive/models/masked_deconv_model_e_{epoch }")
+    X = invTrans(X)
+    plt.imshow(X.permute(1,2,0))
+    plt.savefig("val-img2.png")
+    plt.clf()
 
+    X = X.permute(1, 2, 0).numpy()
+
+    X = draw_heatmap(X, Y)
+
+    plt.imshow(X)
+    plt.savefig("test-key2.png")
+    plt.clf()
+
+    hmp = np.sum(Y, axis = 0)
+    plt.imshow(hmp)
+    plt.savefig("val-hmp2.png")
+    plt.clf()
 
 
 if __name__ == "__main__":

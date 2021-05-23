@@ -18,6 +18,7 @@ processed_dir = os.path.join(data_dir, "processed_img")
 annotaion_dir = os.path.join(data_dir, "annotations")
 coco_dataset_url = "http://images.cocodataset.org/zips/train2017.zip"
 coco_annotation_url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+coco_val_url = "http://images.cocodataset.org/zips/val2017.zip"
 
 def load_processed_img_id():
     with open(img_id_pickle, "rb") as f:
@@ -50,65 +51,68 @@ def process_img():
         print("Downloading coco dataset")
         download_coco()
 
-    original_image_id, original_keypoints, original_bbox, num_keypoints = read_annotation_json()
+    img_id_data, keypoints_data, bbox_info_data, num_keypoints_data = read_annotation_json()
 
-    print(original_image_id[:10])
     print("Start processing images according to configuration..")
 
-    for i in range(len(original_image_id)):
-        if i > 1000:
-            break
-        ind = i
-        img = Image.open(original_image_id[ind])
-        w, h = img.size
-        keyp = original_keypoints[ind]
-        num_key = num_keypoints[ind]
+    processed_img_id = {"train": [], "val":[]}
+    processed_keypoints = {"train": [], "val": []}
+                        
+    for data_type in ["train", "val"]:
+        for ind in range(len(img_id_data[data_type])):
+            # if i > 1000:
+            #   break
+            img = Image.open(img_id_data[data_type][ind])
+            w, h = img.size
+            keyp = keypoints_data[data_type][ind]
+            # print(len(keyp))
+            # print(keyp)
+            num_key = num_keypoints_data[data_type][ind]
+            bx, by, bw, bh = bbox_info_data[data_type][ind]
+            # print(bx, by, bw, by)
+            bsz, cx, cy = max(bw, bh) * Config.bbx_multiplier, bx + bw//2, by + bh//2
 
-        Config.num_keypoints = len(keyp) // 3
+            if bsz < 224 :
+                continue
+            if num_key < 4:
+                continue
 
-        bx, by, bw, bh = original_bbox[ind]
-        bsz, cx, cy = max(bw, bh) * Config.bbx_multiplier, bx + bw//2, by + bh//2
+            # draw_keypoints(img, keyp)
+            # display(img)
 
-        if bsz < 224 :
-            continue
-        if num_key < 6:
-            continue
+            lx, rx = cx - bsz // 2, cx + bsz//2
+            ly, ry = cy - bsz //2 , cy + bsz //2
 
-        lx, rx = cx - bsz // 2, cx + bsz//2
-        ly, ry = cy - bsz //2 , cy + bsz //2
+            roi = img.crop((lx, ly, rx, ry))
 
-        roi = img.crop((lx, ly, rx, ry))
+            points = []
+            for i in range(Config.num_keypoints):
+                x, y, v = keyp[3 * i : 3 *(i+1)]
+                if v < 1:
+                    points.extend((x,y,v))
+                else:
+                    x -= cx - bsz // 2
+                    y -= cy - bsz// 2
+                    points.extend((x,y, v))
+            # print(points)
 
-        points = []
-        for i in range(Config.num_keypoints):
-            x, y, v = keyp[3 * i : 3 *(i+1)]
-            if v < 1:
-                points.extend((x,y,v))
-            else:
-                x -= cx - bsz // 2
-                y -= cy - bsz// 2
-                points.extend((x,y, v))
-        roi = roi.resize(Config.image_shape)
-        normalized_keypoint = []
-        for i in range(Config.num_keypoints):
-            x, y, v = points[3 * i : 3 * (i + 1)]
-            x /= bsz
-            y /= bsz
-            normalized_keypoint.extend((x,y, v))
+            # draw_keypoints(roi, points)
+            # display(roi)
+            roi = roi.resize(Config.image_shape)
+            normalized_keypoint = []
+            for i in range(Config.num_keypoints):
+                x, y, v = points[3 * i : 3 * (i + 1)]
+                x /= bsz
+                y /= bsz
+                normalized_keypoint.extend((x,y, v))
 
-        new_path =  os.path.join(processed_dir, '%012d.jpg' % (ind))
-        print(new_path)
-        roi.save(new_path)
-        processed_keypoints.append(normalized_keypoint)
-        processed_img_id.append(new_path)
+            new_path =  f"./processed_img/{data_type}_" + '%012d.jpg' % (ind)
+            print(new_path)
+            roi.save(new_path)
+            processed_keypoints[data_type].append(normalized_keypoint)
+            processed_img_id[data_type].append(new_path)
 
-    with open(img_id_pickle, "wb") as f:
-        pickle.dump(processed_img_id, f)
-
-    with open(keypoints_pickle, "wb") as f:
-        pickle.dump(processed_keypoints, f)
-    print("total processed : ", len(processed_keypoints))
-
+    print(f"processed img data for training {len(processed_img_id['train'])}, for val {len(processed_img_id['val'])}")
     return processed_img_id, processed_keypoints
 
 def download_coco():
@@ -127,40 +131,53 @@ def download_coco():
     with ZipFile(os.path.join(data_dir, "train2017.zip")) as zf:
         zf.extractall(data_dir)
     print("Done.")
-    
+
+    print("Downloading validation data..")
+    wget.download(coco_val_url)
+
+    print("\nExtracting validation data...")
+    with ZipFile(os.path.join(data_dir, "val2017.zip")) as zf:
+        zf.extractall(data_dir)
+    print("Done.")
+
     downloaded = True
     with open(os.path.join(data_dir, "download_flag"), "wb") as f:
         pickle.dump(downloaded, f)
 
 
 def read_annotation_json():
-    print("Reading annotation json..")
-    with open(os.path.join(annotaion_dir, "person_keypoints_train2017.json"), "r") as f:
-        annotations = json.load(f)
+    img_id_data = {"train": [], "val":[]}
+    keypoints_data = {"train" : [], "val": []}
+    bbox_info_data = {"train": [], "val": []}
+    num_keypoints_data = {"train" : [], "val" : []}
 
-    annotations = annotations["annotations"]
-    original_image_id = []
-    original_keypoints = []
-    original_bbox = []
-    num_keypoints = []
+    for data_type in ["train", "val"]:
+        json_file = f"annotations/person_keypoints_{data_type}2017.json"
+        with open(json_file) as jsf:
+            annotations = json.load(jsf)
+        annotations = annotations["annotations"]
+        for a in annotations:
+            image_id, keyp, bbox, num = a["image_id"], a["keypoints"], a["bbox"], a["num_keypoints"]
+            image_id = f"./{data_type}2017/" + '%012d.jpg' % (image_id)
+            # print(image_id)
+            # print(keyp)
+            # print(bbox)
+            num = 0
 
-
-    for a in annotations:
-        image_id, keyp, bbox, num = a["image_id"], a["keypoints"], a["bbox"], a["num_keypoints"]
-        image_id = os.path.join(img_dir, '%012d.jpg' % (image_id))
-        # print(image_id)
-        # print(keyp)
-        # print(bbox)
         keyp = remove_ignored_keypoints(keyp) 
-        original_image_id.append(image_id)
-        original_keypoints.append(keyp)
-        original_bbox.append(bbox)
-        num_keypoints.append(num)
-    
-    print("Done.")
 
+        for i in range(len(keyp) // 3):
+            _, _, v = keyp[ 3 * i: 3 * i + 3]
+            if v > 0.5:
+                num += 1
 
-    return original_image_id, original_keypoints, original_bbox, num_keypoints
+        img_id_data[data_type].append(image_id)
+        keypoints_data[data_type].append(keyp)
+        bbox_info_data[data_type].append(bbox)
+        num_keypoints_data[data_type].append(num)
+
+        Config.num_keypoints = len(keypoints_data["train"][0]) // 3
+    return img_id_data, keypoints_data, bbox_info_data, num_keypoints_data
 
 
 def reset():
@@ -217,11 +234,11 @@ def heatmap_to_keypoints(heatmap, threshold = 0.8):
     _, hw, hh = heatmap.shape
     for i in range(Config.num_keypoints):
         hmp = heatmap[i,:,:]
-        if np.max(hmp) < threshold * 255:
+        if np.max(hmp) < threshold:
             keyp.extend([0,0, 0])
         else:
-            hmp = hmp / np.max(hmp) * 255
-            hmp = np.where(hmp > 0.9 * 255, hmp, 0)
+            hmp = hmp / np.max(hmp)
+            hmp = np.where(hmp > 0.9, hmp, 0)
             cy, cx = ndimage.center_of_mass(hmp)
             keyp.extend([cx / hw, cy /hh, 2])
     return keyp
