@@ -28,7 +28,7 @@ def load_processed_img_id():
         processed_keypoints = pickle.load(f)
 
     if len(processed_img_id) == 0:
-        print("Download is needed")
+        print("Training data is needed. Processing data for training..")
         processed_img_id, processed_keypoints = process_img() 
         print("done")
     else:
@@ -112,6 +112,13 @@ def process_img():
             processed_img_id[data_type].append(new_path)
 
     print(f"processed img data for training {len(processed_img_id['train'])}, for val {len(processed_img_id['val'])}")
+    #save processed id list 
+    with open(img_id_pickle, "wb") as f:
+        pickle.dump(processed_img_id, f)
+
+    with open(keypoints_pickle, "wb") as f: 
+        pickle.dump(processed_keypoints, f)
+
     return processed_img_id, processed_keypoints
 
 def download_coco():
