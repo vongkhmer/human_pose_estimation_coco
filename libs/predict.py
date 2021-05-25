@@ -59,6 +59,6 @@ if __name__ == "__main__":
     human_pose_model.load_state_dict(torch.load( model_name, map_location=device))
 
     keyp, result_img = predict(human_pose_model, image_name, device)
-
+    result_img.save(output_image_name)
     print("Prediction result : ", keyp)
-    print(f"Check outputs image @ test/{output_image_name}")
+    print(f"Check outputs image @ {output_image_name}")
