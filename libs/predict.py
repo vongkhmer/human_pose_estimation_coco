@@ -61,4 +61,4 @@ if __name__ == "__main__":
     keyp, result_img = predict(human_pose_model, image_name, device)
     result_img.save(output_image_name)
     print("Prediction result : ", keyp)
-    print(f"Check outputs image @ {output_image_name}")
+    print(f"Check output image @ {output_image_name}")
