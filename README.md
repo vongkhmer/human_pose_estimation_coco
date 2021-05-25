@@ -18,10 +18,10 @@ To predict keypoints of an image using a trained model:
 -cd libs <br>
 -python3 predict.py [MODEL_STATE_DICT_NAME] [IMAGE_NAME] [OUTPUT_IMAGE_NAME]
 
-for example: "python3 predict.py pose_model_with_val_best_val_loss test6.jpeg result6.png" <br?
-The model's state dict must be in the trained_models/ directory. <br>
-The test image must be in the test/ directory. <br>
-The result image will be save in the test/ directory <br>
+for example: "python3 predict.py pose_model_with_val_best_val_loss test6.jpeg result6.png" <br>
+The model's state dict must be in the <b>trained_models/</b> directory. <br>
+The test image must be in the <b>test/ </b> directory. <br>
+The result image will be save in the <b>test/ </b> directory <br>
 
 Some results that was tested on my machine: <br>
 <img src="https://user-images.githubusercontent.com/10069391/119505466-f3a81880-bda7-11eb-8291-a29b17605ccb.png" alt="test1" height="300">
