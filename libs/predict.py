@@ -22,7 +22,6 @@ def load_img(fn):
     # original_im = im.crop((cx -128, cy -128, cx + 128, cy + 128))
     im = im.crop((cx - new_w// 2, cy - new_h // 2, cx + new_w // 2, cy +  new_h // 2))
     print(im.size)
-    display(im)
     im = resnet_preprocess(im)
     return im.unsqueeze(0), original_im, padx, pady
 
