@@ -149,10 +149,10 @@ def train():
         loss_hist["val"].append(val_loss)
 
         if epoch % 10 == 0:
-            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, f"pose_model_with_val_e_{epoch }"))
+            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, f"pose_model_e_{epoch }"))
 
         if val_loss < best_val_loss:
-            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, "pose_model_with_val_best_val_loss"))
+            torch.save(human_pose_model.state_dict(), os.path.join(models_dir, "pose_model_best_val_loss"))
             best_val_loss = val_loss
         print(f"Best val loss {best_val_loss}")
     
