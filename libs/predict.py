@@ -4,6 +4,7 @@ import numpy as np
 from utils import * 
 from model import * 
 import sys
+import torch
 
 def load_img(fn):
     im = Image.open(fn)
@@ -52,8 +53,10 @@ if __name__ == "__main__":
     output_image_name = sys.argv[3]
 
     print(f"Initializing model {model_name}")
+    human_pose_model = HumanPose()
+    human_pose_model.load_state_dict(torch.load(os.path.join(models_dir, model_name)))
 
-    keyp, result_img = predict(model_name, image_name)
+    keyp, result_img = predict(human_pose_model, image_name)
 
     print("Prediction result : ", keyp)
     print(f"Check outputs image @ test/{output_image_name}")
