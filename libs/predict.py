@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw
 import numpy as np
 from utils import * 
 from model import * 
+from pose_data_loader import *
 import sys
 import torch
 
