@@ -23,10 +23,10 @@ The model's state dict must be in the trained_models/ directory.
 The test image must be in the test/ directory.
 The result image will be save in the test/ directory
 
-Some results that was tested on my machine:
-![result1](https://user-images.githubusercontent.com/10069391/119505466-f3a81880-bda7-11eb-8291-a29b17605ccb.png)
-![result4](https://user-images.githubusercontent.com/10069391/119505480-f86ccc80-bda7-11eb-901a-03d60582c10b.png)
+Some results that was tested on my machine: <br>
+<img src="https://user-images.githubusercontent.com/10069391/119505466-f3a81880-bda7-11eb-8291-a29b17605ccb.png" alt="test1" height="500">
+<img src="https://user-images.githubusercontent.com/10069391/119505480-f86ccc80-bda7-11eb-901a-03d60582c10b.png" alt="test4" height="500">
+<img src="https://user-images.githubusercontent.com/10069391/119505516-01f63480-bda8-11eb-93d8-86aa7fcb9b32.png" alt="test5" height="500">
 
-![result5](https://user-images.githubusercontent.com/10069391/119505516-01f63480-bda8-11eb-93d8-86aa7fcb9b32.png)
 
 Enjoy and happy learning!
