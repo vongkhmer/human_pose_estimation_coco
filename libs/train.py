@@ -95,7 +95,7 @@ def train():
     print("Training first 10 epochs with resnet weight frozen...")
 
     loss_hist = {"train":[], "val" : []}
-    NUM_EPOCH = 5 
+    NUM_EPOCH = 120 
     start_epoch = 0
     end_epoch = start_epoch + NUM_EPOCH + 1
     best_val_loss = 1e5
@@ -161,7 +161,7 @@ def train():
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+    plt.legend(['train', 'val'], loc='upper left')
     plt.savefig("loss-hist.png")
     plt.clf()
 
