@@ -26,7 +26,7 @@ def load_img(fn):
     im = resnet_preprocess(im)
     return im.unsqueeze(0), original_im, padx, pady
 
-def predict(model, fn):
+def predict(model, fn, device):
     model.eval()
     X, original_im, padx, pady = load_img(fn)
     outputs = human_pose_model(X.to(device))
@@ -51,12 +51,14 @@ if __name__ == "__main__":
     model_name = sys.argv[1]
     image_name = sys.argv[2]
     output_image_name = sys.argv[3]
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
 
     print(f"Initializing model {model_name}")
     human_pose_model = HumanPose()
     human_pose_model.load_state_dict(torch.load(os.path.join(models_dir, model_name)))
 
-    keyp, result_img = predict(human_pose_model, image_name)
+    keyp, result_img = predict(human_pose_model, image_name, device)
 
     print("Prediction result : ", keyp)
     print(f"Check outputs image @ test/{output_image_name}")
