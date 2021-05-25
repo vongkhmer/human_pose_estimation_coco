@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     print(f"Initializing model {model_name}")
     human_pose_model = HumanPose()
-    human_pose_model.load_state_dict(torch.load(os.path.join(models_dir, model_name)))
+    human_pose_model.load_state_dict(torch.load(os.path.join(models_dir, model_name), map_location=device))
 
     keyp, result_img = predict(human_pose_model, image_name, device)
 
