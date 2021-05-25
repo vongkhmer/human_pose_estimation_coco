@@ -48,7 +48,7 @@ def predict(model, fn, device):
     return keyp, result_img
 
 if __name__ == "__main__":
-    model_name = os.path.join(test_dir, sys.argv[1])
+    model_name = os.path.join(models_dir, sys.argv[1])
     image_name = os.path.join(test_dir, sys.argv[2])
     output_image_name = os.path.join(test_dir, sys.argv[3])
     use_cuda = torch.cuda.is_available()
