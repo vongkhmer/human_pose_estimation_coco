@@ -240,7 +240,7 @@ def draw_normalized_keypoints(im, keypoints, radius = 4):
         x1, x2 = x1 * w, x2 * w
         y1, y2 = y1 * h, y2 * h
         if v1 > 0.5 and v2 > 0.5:
-            draw.line((x1, y1, x2, y2), fill="green", width=radius)
+            draw.line((x1, y1, x2, y2), fill="green", width=radius//2)
     return im
 
 def heatmap_to_keypoints(heatmap, threshold = 0.8):
