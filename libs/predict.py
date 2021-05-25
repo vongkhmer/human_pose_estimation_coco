@@ -48,15 +48,15 @@ def predict(model, fn, device):
     return keyp, result_img
 
 if __name__ == "__main__":
-    model_name = sys.argv[1]
-    image_name = sys.argv[2]
-    output_image_name = sys.argv[3]
+    model_name = os.path.join(test_dir, sys.argv[1])
+    image_name = os.path.join(test_dir, sys.argv[2])
+    output_image_name = os.path.join(test_dir, sys.argv[3])
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
     print(f"Initializing model {model_name}")
     human_pose_model = HumanPose()
-    human_pose_model.load_state_dict(torch.load(os.path.join(models_dir, model_name), map_location=device))
+    human_pose_model.load_state_dict(torch.load( model_name, map_location=device))
 
     keyp, result_img = predict(human_pose_model, image_name, device)
 
